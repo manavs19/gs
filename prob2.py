@@ -1,16 +1,9 @@
-from sklearn import svm
-from sklearn import cross_validation
-from sklearn import tree
-from sklearn.preprocessing import Imputer
-from sklearn.feature_selection import SelectKBest, chi2
-# from sklearn.naive_bayes import GaussianNB
 import csv
 import time
 import datetime
-
-def getTimestamp(s):
-	""" Format:15-May-14 """
-	return time.mktime(datetime.datetime.strptime(s, "%d-%b-%y").timetuple())
+from sklearn import svm, cross_validation, tree
+from sklearn.preprocessing import Imputer
+from sklearn.feature_selection import SelectKBest, chi2
 
 trainingFileName = "Initial_Training_Data.csv"
 testFileName = "Initial_Test_Data.csv"
@@ -53,18 +46,11 @@ imp = imp.fit(data)
 data = imp.transform(data)
 
 print data.shape
-# for k in range(10,0,-1):
-featureSelector= SelectKBest(chi2, k=4)
+featureSelector= SelectKBest(chi2, k=6) #k=4 : 31.88%
 featureSelector.fit(data, classes)
-
-# data = SelectKBest(chi2, k=6).fit_transform(dd, classes)
-# featureSelector= svm.LinearSVC(C=0.01, penalty="l1", dual=False)
-# featureSelector.fit(data, classes)
-# print featureSelector.get_support(), featureSelector.get_params()
+# print featureSelector.get_support()
 data = featureSelector.transform(data)
 print data.shape
-
-print "yo1"
 
 # clf = tree.DecisionTreeClassifier()
 
@@ -103,9 +89,6 @@ with open(testFileName, 'rb') as csvfile:
 				data_map[str(line[i])] = len(data_map)
 			row.append(data_map[str(line[i])])
 		test_data.append(row)
-
-# for r in test_data:
-# 	print len(r)
 
 imp = Imputer()
 imp = imp.fit(test_data)
