@@ -21,22 +21,15 @@ data_map = {}
 classes = []
 classes_map = {}
 
-MEANDIFF=0
-
 with open(trainingFileName, 'rb') as csvfile:
 	reader = csv.reader(csvfile)
 	reader.next()
 	for line in reader:
 		row = []
 		numCols = len(line)
-		startTime=0
-		endTime=0
-
-		if (not line[8] or not line[12]):
-			continue
-		if getTimestamp(line[8]) > getTimestamp(line[12]):
-			continue
 		for i in range(1, numCols-1):
+			if i==8 or i==12:
+				continue
 			if not line[i]:#empty
 				row.append(float('nan'))
 				continue
@@ -45,19 +38,9 @@ with open(trainingFileName, 'rb') as csvfile:
 				row.append(int(line[i]))
 				continue
 
-			if i==8:
-				startTime = getTimestamp(line[i])
-				continue
-
-			if i==12:
-				endTime = getTimestamp(line[i])
-				continue
-
 			if str(line[i]) not in data_map:
 				data_map[str(line[i])] = len(data_map)
 			row.append(data_map[str(line[i])])
-		MEANDIFF=MEANDIFF + endTime - startTime
-		row.append(endTime - startTime)
 		data.append(row)
 
 		currClass = str(line[numCols-1])
@@ -65,16 +48,17 @@ with open(trainingFileName, 'rb') as csvfile:
 			classes_map[currClass] = len(classes_map)
 		classes.append(classes_map[currClass])
 
-MEANDIFF = float(MEANDIFF) / len(data)
 imp = Imputer()
 imp = imp.fit(data)
 data = imp.transform(data)
 
 print data.shape
-# for k in range(18,0,-1):
-# data = SelectKBest(chi2, k=6).fit_transform(dd, classes)
-featureSelector= svm.LinearSVC(C=0.01, penalty="l1", dual=False)
+featureSelector= SelectKBest(chi2, k=6)
 featureSelector.fit(data, classes)
+
+# data = SelectKBest(chi2, k=6).fit_transform(dd, classes)
+# featureSelector= svm.LinearSVC(C=0.01, penalty="l1", dual=False)
+# featureSelector.fit(data, classes)
 # print featureSelector.get_support(), featureSelector.get_params()
 data = featureSelector.transform(data)
 print data.shape
@@ -101,20 +85,11 @@ with open(testFileName, 'rb') as csvfile:
 		isins.append(str(line[0]))
 		row = []
 		numCols = len(line)
-		startTime=0
-		endTime=0
-		if (not line[8] or not line[12]):
-			line[8] = 1
-			line[12] = 1+ MEANDIFF
-		else:
-			line[8] = getTimestamp(line[8])
-			line[12] = getTimestamp(line[12])
-
-		if line[8] > line[12]:
-			line[8] = 1
-			line[12] = 1+MEANDIFF
-
+		
 		for i in range(1, numCols):
+			if i==8 or i==12:
+				continue
+			
 			if not line[i]:#empty
 				row.append(float('nan'))
 				continue
@@ -123,18 +98,9 @@ with open(testFileName, 'rb') as csvfile:
 				row.append(int(line[i]))
 				continue
 
-			if i==8:
-				startTime = line[8]
-				continue
-
-			if i==12:
-				endTime = line[12]
-				continue
-
 			if str(line[i]) not in data_map:
 				data_map[str(line[i])] = len(data_map)
 			row.append(data_map[str(line[i])])
-		row.append(endTime-startTime)
 		test_data.append(row)
 
 # for r in test_data:
