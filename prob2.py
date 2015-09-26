@@ -53,7 +53,8 @@ imp = imp.fit(data)
 data = imp.transform(data)
 
 print data.shape
-featureSelector= SelectKBest(chi2, k=6)
+# for k in range(10,0,-1):
+featureSelector= SelectKBest(chi2, k=4)
 featureSelector.fit(data, classes)
 
 # data = SelectKBest(chi2, k=6).fit_transform(dd, classes)
