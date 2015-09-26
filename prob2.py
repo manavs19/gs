@@ -20,20 +20,21 @@ with open(trainingFileName, 'rb') as csvfile:
 	for line in reader:
 		row = []
 		numCols = len(line)
+		flag=0
 		for i in range(1, numCols-1):
 			if i==8 or i==12:
-				continue
-			if not line[i]:#empty
-				row.append(float('nan'))
-				continue
-
-			if i==7:#days_to_settle
+				pass
+			elif not line[i]:#empty
+				flag=1
+			elif i==7:#days_to_settle
 				row.append(int(line[i]))
-				continue
+			else:	
+				if str(line[i]) not in data_map:
+					data_map[str(line[i])] = len(data_map)
+				row.append(data_map[str(line[i])])
+		if flag==1:#ignore
+			continue
 
-			if str(line[i]) not in data_map:
-				data_map[str(line[i])] = len(data_map)
-			row.append(data_map[str(line[i])])
 		data.append(row)
 
 		currClass = str(line[numCols-1])
@@ -72,22 +73,17 @@ with open(testFileName, 'rb') as csvfile:
 		isins.append(str(line[0]))
 		row = []
 		numCols = len(line)
-		
 		for i in range(1, numCols):
 			if i==8 or i==12:
-				continue
-			
-			if not line[i]:#empty
-				row.append(float('nan'))
-				continue
-
-			if i==7:#days_to_settle
+				pass
+			elif not line[i]:#empty
+				row.append(float("nan"))
+			elif i==7:#days_to_settle
 				row.append(int(line[i]))
-				continue
-
-			if str(line[i]) not in data_map:
-				data_map[str(line[i])] = len(data_map)
-			row.append(data_map[str(line[i])])
+			else:	
+				if str(line[i]) not in data_map:
+					data_map[str(line[i])] = len(data_map)
+				row.append(data_map[str(line[i])])
 		test_data.append(row)
 
 imp = Imputer()
