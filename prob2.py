@@ -5,8 +5,8 @@ from sklearn import svm, cross_validation, tree
 from sklearn.preprocessing import Imputer
 from sklearn.feature_selection import SelectKBest, chi2
 
-trainingFileName = "Initial_Training_Data.csv"
-testFileName = "Initial_Test_Data.csv"
+trainingFileName = "Final_Training_Data.csv"
+testFileName = "Final_Test_Data.csv"
 
 data = []
 data_map = {}
@@ -35,15 +35,16 @@ def processTrainingData():
 				if i==8 or i==12:
 					pass
 				elif not line[i]:#empty
-					flag=1
+					row.append(float("nan"))
+					# flag=1
 				elif i==7:#days_to_settle
 					row.append(int(line[i]))
 				else:	
 					if str(line[i]) not in data_map:
 						data_map[str(line[i])] = len(data_map)
 					row.append(data_map[str(line[i])])
-			if flag==1:#ignore
-				continue
+			# if flag==1:#ignore
+			# 	continue
 
 			data.append(row)
 
@@ -61,7 +62,7 @@ def featureSelection():
 	global featureSelector
 
 	print data.shape
-	featureSelector= SelectKBest(chi2, k=6) #k=4 : 31.88%
+	featureSelector= SelectKBest(chi2, k=1) #k=4 : 31.88%
 	featureSelector.fit(data, classes)
 	# print featureSelector.get_support()
 	data = featureSelector.transform(data)
@@ -115,7 +116,7 @@ def classify():
 	print test_data.shape
 	print "yo3"
 
-	with open('output_file.csv', 'wb') as csvfile:
+	with open('final_output_file.csv', 'wb') as csvfile:
 		sw = csv.writer(csvfile)	
 		sw.writerow(['ISIN', 'Risk_Stripe'])
 		for i in range(0, len(test_data)):
